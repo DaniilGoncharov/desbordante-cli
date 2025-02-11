@@ -76,6 +76,7 @@ FILENAME = 'filename'
 VERBOSE = 'verbose'
 ERROR = 'error'
 PFD_ERROR_MEASURE = 'pfd_error_measure'
+TABLE = 'table'
 TABLES = 'tables'
 TABLES_LIST = 'tables_list'
 TABLES_DIRECTORY = 'tables_directory'
@@ -163,9 +164,6 @@ bindings or the Web version.
     specify the input file to be processed by the algorithm.
     Algorithms for some tasks (currently, only IND) accept multiple
     input files; see --task=TASK for more information
-
---is_null_equal_null=BOOLEAN
-    specify whether two NULLs should be considered equal
 
 --filename=FILENAME
     specify the file to write the results to. If none is selected, output is
@@ -872,8 +870,10 @@ def print_help_page(algo_name: str | None, task: str | None) -> None:
 def print_algo_help_page(algo_name: str) -> None:
     algo = ALGOS[Algorithm(algo_name)]()
     help_info = ''
-    for opt in algo.get_possible_options():
-        if opt not in ('table', TABLES, 'is_null_equal_null'):
+    algo_options = list(algo.get_possible_options())
+    algo_options.sort()
+    for opt in algo_options:
+        if opt not in (TABLE, TABLES):
             help_info += get_option_help_info(opt, algo)
     click.echo(f'{ALGO_HELP_PAGES[Algorithm(algo_name)]}{help_info}')
 
