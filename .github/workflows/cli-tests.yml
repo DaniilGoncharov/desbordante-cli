@@ -1,0 +1,48 @@
+name: CLI Parsing and help pages
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - src/**
+  push:
+    branches:
+      - main
+    paths:
+      - src/**
+  workflow_dispatch:
+  
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Cancel in-progress runs when a new workflow with the same group name is triggered
+  cancel-in-progress: true
+
+jobs:
+  test-cli:
+    name: Run cli tests on ubuntu-latest
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install requirements
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r src/test_cli/requirements.txt
+          python3 -m pip install desbordante
+
+      - name: Test help pages
+        run: |
+          source .venv/bin/activate
+          python3 -m pytest src/test_cli/test_cli_help_pages.py
+
+      - name: Test CLI parsing
+        run: |
+          source .venv/bin/activate
+          python3 -m pytest src/test_cli/test_cli_parsing.py
+
